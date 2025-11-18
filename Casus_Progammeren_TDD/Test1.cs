@@ -14,8 +14,6 @@
             Assert.AreEqual(expectedName, objSpace.Naam);
             Assert.AreEqual(expectedCapacity, objSpace.Capacity);
         }
-        Space userSpace = Space.LetUserDefineSpace();
     }
-
 }
 

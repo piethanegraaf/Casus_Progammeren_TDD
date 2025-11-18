@@ -12,4 +12,8 @@
     <TestingPlatformShowTestsFailure>true</TestingPlatformShowTestsFailure>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Casus_Programmeren_Console\Casus_Programmeren_Console.csproj" />
+  </ItemGroup>
+
 </Project>
