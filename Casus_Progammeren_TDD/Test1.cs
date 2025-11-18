@@ -3,20 +3,19 @@
     [TestClass]
     public class UnitTest1
     {
+        // test space object
         [TestMethod]
-        public void GetNameTest()
+        public void SpaceObjectTest()
         {
-            // Arrange
-            Employee objEmployee = new Employee();
-            string firstName = "Narasimha";
-            string lastName = "Reddy";
-            string expected = "Narasimha Reddy";
-            string actual;
-            // Act
-            actual = objEmployee.GetName(firstName, lastName);
-            // Assert
-            Assert.AreEqual(expected, actual);
+            Space objSpace = new Space("Space1", "TypeA", 25, 10, 15);
+            string expectedName = "Space1";
+            float expectedCapacity = 25;
+
+            Assert.AreEqual(expectedName, objSpace.Naam);
+            Assert.AreEqual(expectedCapacity, objSpace.Capacity);
         }
+        Space userSpace = Space.LetUserDefineSpace();
     }
+
 }
 
