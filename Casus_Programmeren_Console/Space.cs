@@ -38,16 +38,15 @@
         }
 
         // method to calculate oxygon comsumption and remaining oxygen in the space after consumption
-        // Benadering voor Zuurstofgebruik
         // Gemiddelde zuurstofconsumptie per persoon is 30 liter zuurstof per uur.
-        // Zuurstofinhoud in de lucht: De lucht bestaat voor ongeveer 21% uit zuurstof.
-        //  O = 30 × n × t waarbij: O = totaal zuurstofverbruik in liters, n = aantal personen, t = tijd in uren
-        //  Beschikbare zuurstof = V × 0,21 × 1000 waarbij:
-        //  V = volume van de ruimte in kubieke meters(m³)
-        //  0,21 = fractie zuurstof in de lucht
-        //  1000 = omzetting van m³ naar liters
-        //  • De tijd T(in uren) dat de zuurstof in een ruimte van volume V voldoende is voor n personen kan worden berekend met:
-        //  T = (V × 0,21 × 1000) / 30 × n
+        // De lucht bestaat voor ongeveer 21% uit zuurstof.
+        // O = 30 × n × t waarbij: O = totaal zuurstofverbruik in liters, n = aantal personen, t = tijd in uren
+        // Beschikbare zuurstof = V × 0,21 × 1000 waarbij:
+        // V = volume van de ruimte in kubieke meters(m³)
+        // 0,21 = fractie zuurstof in de lucht
+        // 1000 = omzetting van m³ naar liters
+        // De tijd T(in uren) dat de zuurstof in een ruimte van volume V voldoende is voor n personen kan worden berekend met:
+        // T = (V × 0,21 × 1000) / 30 × n
         public (float oxygenConsumed, float oxygenRemaining) CalculateOxygenUsage(int numberOfPeople, float timeInHours)
         {
             // Calculate total oxygen consumption
