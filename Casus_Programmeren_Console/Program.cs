@@ -28,8 +28,7 @@ namespace Casus_Programmeren_TDD
             Costs costs = new Costs();
             var reservations = new Dictionary<string, (int aantalPersonen, DateTime begintijd, int aantalUren, DayOfWeek dagVanDeWeek, string gebouw)>
             {
-                { "Lokaal in Spectrum", (10, new DateTime(2025, 1, 1, 9, 0, 0), 2, DayOfWeek.Monday, "Spectrum") },
-                { "Werkruimte in Spectrum", (5, new DateTime(2023, 1, 1, 16, 0, 0), 8, DayOfWeek.Friday, "Spectrum") }
+                { "Lokaal in Prisma", (10, new DateTime(2023, 1, 1, 23, 0, 0), 4, DayOfWeek.Sunday, "Prisma") }
             };
             float totalCost = costs.Calculate_total_cost(reservations);
             Console.WriteLine("\nDruk op een toets om af te sluiten...");

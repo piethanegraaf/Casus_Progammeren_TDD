@@ -115,7 +115,7 @@ namespace Casus_Progammeren_TDD
                 { "Lokaal in Spectrum", (10, new DateTime(2025, 1, 1, 9, 0, 0), 2, DayOfWeek.Monday, "Spectrum") }
             };
             float totalCost = costs.Calculate_total_cost(reservations);
-            float expectedCost = 300 + (20 * 10 * 2) + 5 + 4; // fixed cost + (cost per person per hour * number of people * number of hours) + heating cost
+            float expectedCost = 300 + (20 * 27 * 2) + 5 + 4; // fixed cost + (cost per person per hour * capacity of the room * number of hours) + heating cost
             Assert.AreEqual(expectedCost, totalCost);
         }
 
@@ -130,7 +130,7 @@ namespace Casus_Progammeren_TDD
                 { "Werkruimte in Spectrum", (5, new DateTime(2023, 1, 1, 16, 0, 0), 8, DayOfWeek.Friday, "Spectrum") }
             };
             float totalCost = costs.Calculate_total_cost(reservations);
-            float expectedCost = (float)((float)300 + (20 * 10 * 2) + 5 + 4// first reservation = 709
+            float expectedCost = (float)((float)300 + (20 * 27 * 2) + 5 + 4// first reservation = 709
                                  + ((100 + 120) * 0.8)); // second reservation with daily cost and discount == 176
             Assert.AreEqual(expectedCost, totalCost);
         }
@@ -151,6 +151,23 @@ namespace Casus_Progammeren_TDD
             // Werkruimte in Prisma: huurprijs = 150
             // Vaste reserveringskosten werkruimte Prisma = 90
             float expectedCost = 120 + 100 + 150 + 90;
+            Assert.AreEqual(expectedCost, totalCost);
+        }
+
+        // test Calculate_total_cost with a 4 hour reservation of a lokaal in Prisma for 10 people starting at 11pm
+        [TestMethod]
+        public void SpaceObjectTest6()
+        {
+            Costs costs = new Costs();
+            var reservations = new Dictionary<string, (int aantalPersonen, DateTime begintijd, int aantalUren, DayOfWeek dagVanDeWeek, string gebouw)>
+            {
+                { "Lokaal in Prisma", (10, new DateTime(2023, 1, 1, 23, 0, 0), 4, DayOfWeek.Sunday, "Prisma") }
+            };
+            float totalCost = costs.Calculate_total_cost(reservations);
+            // Lokaal in Prisma: huurprijs = capaciteit * tarief * aantal uren = 27 * 17,50 * 4 = 1890
+            // Vaste reserveringskosten lokaal met 27 cap in Prisma = 275
+            // verwarmingkosten = 3 uur = 5 + 4 + 3 = 12
+            float expectedCost = 1890 + 275 + 12;
             Assert.AreEqual(expectedCost, totalCost);
         }
     }

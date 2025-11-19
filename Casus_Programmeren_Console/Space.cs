@@ -20,8 +20,8 @@
             XCoordinate = x_coordinate;
             YCoordinate = y_coordinate;
         }
-        // method to let user define a space via console input
-        public static Space LetUserDefineSpace()
+        // method to let administrators define a space via console input
+        public static Space LetAdministratorDefineSpace()
         {
 
             Console.WriteLine("Voer de naam van de ruimte in:");

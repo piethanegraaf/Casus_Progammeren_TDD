@@ -1,4 +1,6 @@
-﻿namespace Casus_Programmeren_Console
+﻿using System.Text.RegularExpressions;
+
+namespace Casus_Programmeren_Console
 {
     public class Costs
     {
@@ -132,28 +134,30 @@
         {
             float heatingCost = 0f;
 
-            // we lopen per uur door de reservering
             DateTime current = begintijd;
+            int heatingIndex = 0; // telt alleen de uren mét verwarming
 
             for (int i = 1; i <= aantalUren; i++)
             {
-                // Alleen verwarmingskosten in de ochtend (hier: vóór 12:00)
-                if (current.Hour >= 12)
+                // alleen uren die in de ochtend beginnen
+                if (current.Hour < 12)
                 {
-                    Console.WriteLine($"No heating cost for hour {i}, time is {current:HH:mm} (not morning)");
-                    break;
-                }
+                    heatingIndex++; // 1e verwarmd uur, 2e, 3e...
 
-                string uurKey = $"Uur {i}";
-
-                if (Cost_Overview["Verwarmingskosten"].TryGetValue(uurKey, out float uurPrijs))
-                {
-                    heatingCost += uurPrijs;
-                    Console.WriteLine($"Added heating cost for {uurKey} at {current:HH:mm}: {uurPrijs}");
+                    string uurKey = $"Uur {heatingIndex}";
+                    if (Cost_Overview["Verwarmingskosten"].TryGetValue(uurKey, out float uurPrijs))
+                    {
+                        heatingCost += uurPrijs;
+                        Console.WriteLine($"Added heating cost for {uurKey} at {current:yyyy-MM-dd HH:mm}: {uurPrijs}");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"No heating price defined for {uurKey}");
+                    }
                 }
                 else
                 {
-                    Console.WriteLine($"No heating price defined for {uurKey}");
+                    Console.WriteLine($"No heating cost for hour {i}, time is {current:yyyy-MM-dd HH:mm} (not morning)");
                 }
 
                 current = current.AddHours(1);
@@ -163,6 +167,16 @@
             return heatingCost;
         }
 
+        // methode om capaciteit uit room name te halen
+        private int GetCapacityFromRoomName(string roomName)
+        {
+            var match = Regex.Match(roomName, @"\d+");
+            if (match.Success)
+            {
+                return int.Parse(match.Value);
+            }
+            return 0;
+        }
 
         public float Calculate_total_cost(Dictionary<string, (int aantalPersonen, DateTime begintijd, int aantalUren, DayOfWeek dagVanDeWeek, string gebouw)> reserveringen)
         {
@@ -194,12 +208,33 @@
                 }
                 // Add per person per hour costs if applicable
                 Console.WriteLine($"Checking per person per hour costs for {ruimte}");
-                if (Cost_Overview["Huur per persoon per uur"].ContainsKey(ruimte))
+
+                // Alleen lokalen hebben "Huur per persoon per uur"
+                if (ruimte.StartsWith("Lokaal"))
                 {
-                    indiviual_reservation_cost += Cost_Overview["Huur per persoon per uur"][ruimte] * aantalPersonen * aantalUren;
-                    Console.WriteLine($"Added per person per hour cost for {ruimte}: {Cost_Overview["Huur per persoon per uur"][ruimte] * aantalPersonen * aantalUren}");
+                    // tarief per persoon per uur hangt af van gebouw
+                    float tariefPerPersoonPerUur;
+
+                    if (reservering.Value.gebouw == "Spectrum")
+                    {
+                        tariefPerPersoonPerUur = Cost_Overview["Huur per persoon per uur"]["Lokaal in Spectrum"];
+                    }
+                    else // Prisma
+                    {
+                        tariefPerPersoonPerUur = Cost_Overview["Huur per persoon per uur"]["Lokaal in Prisma"];
+                    }
+
+                    // capaciteit uit de gekozen ruimte, bv "Lokaal 27 Spectrum" → 27
+                    int capaciteit = GetCapacityFromRoomName(geselecteerde_ruimte);
+
+                    float pphCost = tariefPerPersoonPerUur * capaciteit * aantalUren;
+                    indiviual_reservation_cost += pphCost;
+
+                    Console.WriteLine($"Capacity for {geselecteerde_ruimte}: {capaciteit}");
+                    Console.WriteLine($"Added per person per hour cost (capacity based) for {ruimte}: {pphCost}");
                     Console.WriteLine($"Total costs: {indiviual_reservation_cost}");
                 }
+
                 // Add per day costs if applicable
                 Console.WriteLine($"Checking per day costs for {ruimte}");
                 if (Cost_Overview["Huur per dag"].ContainsKey(ruimte))
