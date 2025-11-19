@@ -1,4 +1,6 @@
-﻿namespace Casus_Progammeren_TDD
+﻿using Casus_Programmeren_Console;
+
+namespace Casus_Progammeren_TDD
 {
     [TestClass]
     public class UnitTest1
@@ -99,6 +101,57 @@
             Assert.AreEqual(expectedOxygenConsumed, oxygenConsumed);
             Assert.AreEqual(expectedOxygenRemaining, oxygenRemaining);
             Assert.AreEqual(expectedTimeOxygenLasts, timeOxygenLasts);
+        }
+
+        // Replace the dictionary initialization in SpaceObjectTest3 and SpaceObjectTest4
+        // from using tuple syntax to using collection initializer syntax for Dictionary
+
+        [TestMethod]
+        public void SpaceObjectTest3()
+        {
+            Costs costs = new Costs();
+            var reservations = new Dictionary<string, (int aantalPersonen, DateTime begintijd, int aantalUren, DayOfWeek dagVanDeWeek, string gebouw)>
+            {
+                { "Lokaal in Spectrum", (10, new DateTime(2025, 1, 1, 9, 0, 0), 2, DayOfWeek.Monday, "Spectrum") }
+            };
+            float totalCost = costs.Calculate_total_cost(reservations);
+            float expectedCost = 300 + (20 * 10 * 2) + 5 + 4; // fixed cost + (cost per person per hour * number of people * number of hours) + heating cost
+            Assert.AreEqual(expectedCost, totalCost);
+        }
+
+        // test Calculate_total_cost with multiple reservations
+        [TestMethod]
+        public void SpaceObjectTest4()
+        {
+            Costs costs = new Costs();
+            var reservations = new Dictionary<string, (int aantalPersonen, DateTime begintijd, int aantalUren, DayOfWeek dagVanDeWeek, string gebouw)>
+            {
+                { "Lokaal in Spectrum", (10, new DateTime(2025, 1, 1, 9, 0, 0), 2, DayOfWeek.Monday, "Spectrum") },
+                { "Werkruimte in Spectrum", (5, new DateTime(2023, 1, 1, 16, 0, 0), 8, DayOfWeek.Friday, "Spectrum") }
+            };
+            float totalCost = costs.Calculate_total_cost(reservations);
+            float expectedCost = (float)((float)300 + (20 * 10 * 2) + 5 + 4// first reservation = 709
+                                 + ((100 + 120) * 0.8)); // second reservation with daily cost and discount == 176
+            Assert.AreEqual(expectedCost, totalCost);
+        }
+
+        // test Calculate_total_cost with empty reservations of both the workspace in spectrum and prisma
+        [TestMethod]
+        public void SpaceObjectTest5()
+        {
+            Costs costs = new Costs();
+            var reservations = new Dictionary<string, (int aantalPersonen, DateTime begintijd, int aantalUren, DayOfWeek dagVanDeWeek, string gebouw)>
+            {
+                { "Werkruimte in Spectrum", (1, new DateTime(2023, 1, 1, 16, 0, 0), 1, DayOfWeek.Monday, "Spectrum") },
+                { "Werkruimte in Prisma", (1, new DateTime(2023, 1, 1, 16, 0, 0), 1, DayOfWeek.Monday, "Prisma") }
+            };
+            float totalCost = costs.Calculate_total_cost(reservations);
+            // Werkruimte in Spectrum: huurprijs = 120
+            // Vaste reserveringskosten werkruimte Spectrum = 100
+            // Werkruimte in Prisma: huurprijs = 150
+            // Vaste reserveringskosten werkruimte Prisma = 90
+            float expectedCost = 120 + 100 + 150 + 90;
+            Assert.AreEqual(expectedCost, totalCost);
         }
     }
 }

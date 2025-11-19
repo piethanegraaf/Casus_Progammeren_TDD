@@ -1,6 +1,6 @@
 ﻿namespace Casus_Programmeren_Console
 {
-    internal class Costs
+    public class Costs
     {
         public Dictionary<string, Dictionary<string, float>> Cost_Overview =
             new Dictionary<string, Dictionary<string, float>>
@@ -31,43 +31,204 @@
                     "Huur per dag",
                     new Dictionary<string, float>
                     {
-                        {"Werkruimte in Spectrum:", 120},
-                        {"Werkruimte in Prisma:", 150},
-                        {"Publieke ruimte:", 250}
+                        {"Werkruimte in Spectrum", 120},
+                        {"Werkruimte in Prisma", 150},
+                        {"Publieke ruimte", 250}
                     }
 
                 },
                 {
-                    "Verwarmingskosten",
+                    "Verwarmingskosten", // deze kosten zijn alleen van toepassing in de morgen
                         new Dictionary<string, float>
                         {
-                            {"Uur 1:", 5},
-                            {"Uur 2:", 4},
-                            {"Uur 3:", 3},
-                            {"Uur 4:", 2}
+                            {"Uur 1", 5},
+                            {"Uur 2", 4},
+                            {"Uur 3", 3},
+                            {"Uur 4", 2}
                         }
                 },
                 {
                     "kortingsfactor",
                         new Dictionary<string, float>
                         {
-                            {"vrijdag:", 0.8f}
+                            {"vrijdag", 0.8f}
                         }
                 }
             };
-
-        public void Calculate_total_cost_per_hour()
+        // methode vraag de gebruiker de benodigde informatie voor één of meerdere reserveringen.
+        // de gebruiker kan via single of multiple selecties in de console aangeven welke ruimtes hij wil huren.
+        // 1. welke ruimtes (geselecteerde opties uit the keys van Cost_Overview, vaste kosten)
+        // 2. aantal personen (wanner relevant), begintijden per gehuurde ruimte
+        // 3. aantal uren per ruimte
+        // 4. dag van de week per ruimte
+        public Dictionary<string, (int aantalPersonen, DateTime begintijd, int aantalUren, DayOfWeek dagVanDeWeek)> Get_user_input_for_reservations()
         {
-            // ask the user what space they want to rent
-            Console.WriteLine("Welke ruimte wilt u huren?");
-            foreach (var category in Cost_Overview)
+            var reserveringen = new Dictionary<string, (int, DateTime, int, DayOfWeek)>();
+
+            // implement logic to get user input for reservations
+            return reserveringen;
+        }
+
+        // methode rekent de totale kosten uit per aanvraag.
+        // Als input krijgt het een dictionary met:
+        // 1. welke ruimtes (geselecteerde opties uit the keys van Cost_Overview, vaste kosten)
+        // 2. aantal personen (wanner relevant), begintijden per gehuurde ruimte
+        // 3. aantal uren per ruimte
+        // 4. dag van de week per ruimte
+        // Cost_Overview wordt gebruikt om de kosten per ruimte te bepalen.
+
+        // methode die bepaald welk lokaal gebruikt moet worden in verbant met de capasiteit. 
+        // kiest uit Cost_Overview, vaste kosten, de ruimte die het beste past bij het aantal reserveringen.
+        public string Select_Room_Based_On_N_Reservation(string gebouw, int aantalPersonen, string ruimte)
+        {
+            // implement logic to select room based on capacity
+            string geselecteerde_ruimte = "";
+            if (ruimte.StartsWith("Lokaal"))
             {
-                Console.WriteLine($"\n{category.Key}:");
-                foreach (var item in category.Value)
+                if (gebouw == "Spectrum")
                 {
-                    Console.WriteLine($"- {item.Key} : €{item.Value}");
+                    if (aantalPersonen <= 30)
+                    {
+                        geselecteerde_ruimte = "Lokaal 27 Spectrum";
+                    }
+                    else
+                    {
+                        geselecteerde_ruimte = "Lokaal 60 Spectrum";
+                    }
+                }
+                else if (gebouw == "Prisma")
+                {
+                    if (aantalPersonen <= 30)
+                    {
+                        geselecteerde_ruimte = "Lokaal 27 Prisma";
+                    }
+                    else
+                    {
+                        geselecteerde_ruimte = "Lokaal 60 Prisma";
+                    }
                 }
             }
+            else
+            // werkruimte of publieke ruimte
+            {
+                if (gebouw == "Spectrum")
+                {
+                    geselecteerde_ruimte = "Werkruimte Spectrum";
+                }
+                else if (gebouw == "Prisma")
+                {
+                    geselecteerde_ruimte = "Werkruimte Prisma";
+                }
+                else
+                {
+                    geselecteerde_ruimte = "Publieke ruimte";
+                }
+            }
+
+            return geselecteerde_ruimte;
+        }
+
+        private float CalculateHeatingCosts(DateTime begintijd, int aantalUren)
+        {
+            float heatingCost = 0f;
+
+            // we lopen per uur door de reservering
+            DateTime current = begintijd;
+
+            for (int i = 1; i <= aantalUren; i++)
+            {
+                // Alleen verwarmingskosten in de ochtend (hier: vóór 12:00)
+                if (current.Hour >= 12)
+                {
+                    Console.WriteLine($"No heating cost for hour {i}, time is {current:HH:mm} (not morning)");
+                    break;
+                }
+
+                string uurKey = $"Uur {i}";
+
+                if (Cost_Overview["Verwarmingskosten"].TryGetValue(uurKey, out float uurPrijs))
+                {
+                    heatingCost += uurPrijs;
+                    Console.WriteLine($"Added heating cost for {uurKey} at {current:HH:mm}: {uurPrijs}");
+                }
+                else
+                {
+                    Console.WriteLine($"No heating price defined for {uurKey}");
+                }
+
+                current = current.AddHours(1);
+            }
+
+            Console.WriteLine($"Total heating costs for reservation: {heatingCost}");
+            return heatingCost;
+        }
+
+
+        public float Calculate_total_cost(Dictionary<string, (int aantalPersonen, DateTime begintijd, int aantalUren, DayOfWeek dagVanDeWeek, string gebouw)> reserveringen)
+        {
+            float totalCost = 0;
+
+            // use Cost_Overview and reserveringen to calculate total cost
+            // implement logic to calculate total cost based on input parameters
+            // loop through each reservation
+            // i added logging for debugging purposes
+            foreach (var reservering in reserveringen)
+            {
+                string ruimte = reservering.Key;
+                int aantalPersonen = reservering.Value.aantalPersonen;
+                DateTime begintijd = reservering.Value.begintijd;
+                int aantalUren = reservering.Value.aantalUren;
+                DayOfWeek dagVanDeWeek = reservering.Value.dagVanDeWeek;
+
+                float indiviual_reservation_cost = 0;
+
+                // Add fixed costs if applicable
+                // first check what room to select based on number of people
+                string geselecteerde_ruimte = Select_Room_Based_On_N_Reservation(reservering.Value.gebouw, aantalPersonen, ruimte);
+                Console.WriteLine($"Checking fixed costs for {geselecteerde_ruimte}");
+                if (Cost_Overview["Vaste kosten"].ContainsKey(geselecteerde_ruimte))
+                {
+                    indiviual_reservation_cost += Cost_Overview["Vaste kosten"][geselecteerde_ruimte];
+                    Console.WriteLine($"Added fixed cost for {geselecteerde_ruimte}: {Cost_Overview["Vaste kosten"][geselecteerde_ruimte]}");
+                    Console.WriteLine($"Total costs: {indiviual_reservation_cost}");
+                }
+                // Add per person per hour costs if applicable
+                Console.WriteLine($"Checking per person per hour costs for {ruimte}");
+                if (Cost_Overview["Huur per persoon per uur"].ContainsKey(ruimte))
+                {
+                    indiviual_reservation_cost += Cost_Overview["Huur per persoon per uur"][ruimte] * aantalPersonen * aantalUren;
+                    Console.WriteLine($"Added per person per hour cost for {ruimte}: {Cost_Overview["Huur per persoon per uur"][ruimte] * aantalPersonen * aantalUren}");
+                    Console.WriteLine($"Total costs: {indiviual_reservation_cost}");
+                }
+                // Add per day costs if applicable
+                Console.WriteLine($"Checking per day costs for {ruimte}");
+                if (Cost_Overview["Huur per dag"].ContainsKey(ruimte))
+                {
+                    indiviual_reservation_cost += Cost_Overview["Huur per dag"][ruimte];
+                    Console.WriteLine($"Added per day cost for {ruimte}: {Cost_Overview["Huur per dag"][ruimte]}");
+                    Console.WriteLine($"Total costs: {indiviual_reservation_cost}");
+                }
+                // Add heating costs based on hours
+                Console.WriteLine($"Calculating heating costs for {aantalUren} hours starting at {begintijd:HH:mm}");
+                float heatingCost = CalculateHeatingCosts(begintijd, aantalUren);
+                indiviual_reservation_cost += heatingCost;
+                Console.WriteLine($"Total costs after heating: {indiviual_reservation_cost}");
+
+                // Apply discount if it's Friday
+                Console.WriteLine($"Checking for discounts on {dagVanDeWeek}");
+                Console.WriteLine($"Day of week: {dagVanDeWeek}");
+                if (dagVanDeWeek == DayOfWeek.Friday && Cost_Overview["kortingsfactor"].ContainsKey("vrijdag"))
+                {
+                    indiviual_reservation_cost *= Cost_Overview["kortingsfactor"]["vrijdag"];
+                }
+
+                Console.WriteLine($"Final total costs: {indiviual_reservation_cost}");
+                Console.WriteLine($"-----------------------------------");
+
+                totalCost += indiviual_reservation_cost;
+            }
+            Console.WriteLine($"Total cost for all reservations: {totalCost}");
+            return totalCost;
         }
 
     }
