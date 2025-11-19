@@ -1,4 +1,5 @@
 ﻿using Casus_Progammeren_TDD;
+using Casus_Programmeren_Console;
 
 namespace Casus_Programmeren_TDD
 {
@@ -25,8 +26,12 @@ namespace Casus_Programmeren_TDD
             // berekening van de hoeveelheid zuurstof die wordt verberuikt en overblijft in een ruimte
             Space testSpace = new Space("TestRoom", "Lab", 20, 5, 5);
 
+            // Replace this line:
+            // Costs.Calculate_total_cost_per_hour();
+
+            // With the following:
+            Costs costs = new Costs();
+            costs.Calculate_total_cost_per_hour();
         }
-
-
     }
 }
